@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-green: #14532d;
+  --color-brand-dark: #0f3d22;
+  --color-brand-soft: #eaf5ee;
+  --color-brand-gold: #f59e0b;
+  --color-brand-ink: #17151a;
+  --color-brand-bg: #f6f8fb;
+}
+
+body {
+  @apply bg-brand-bg text-gray-800 overflow-x-hidden;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition active:scale-95 disabled:opacity-60;
+  }
+
+  .btn-green {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition active:scale-95 disabled:opacity-60 bg-brand-green text-white hover:bg-brand-dark;
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition active:scale-95 disabled:opacity-60 bg-brand-gold text-white hover:bg-amber-600;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition active:scale-95 disabled:opacity-60 border border-brand-green text-brand-green hover:bg-brand-green hover:text-white;
+  }
+
+  .input {
+    @apply h-12 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none transition focus:border-brand-gold focus:ring-4 focus:ring-amber-100;
+  }
+
+  .card {
+    @apply overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm;
+  }
+
+  .label {
+    @apply mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden bg-gray-200 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.4s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes rent-photo-zoom-in {
+  0%, 100% { transform: scale(1.08); }
+  50% { transform: scale(1); }
+}
+
+@keyframes rent-photo-zoom-out {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.rent-photo-zoom-in,
+.rent-photo-zoom-out {
+  animation-duration: 2s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+}
+
+.rent-photo-zoom-in {
+  animation-name: rent-photo-zoom-in;
+}
+
+.rent-photo-zoom-out {
+  animation-name: rent-photo-zoom-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rent-photo-zoom-in,
+  .rent-photo-zoom-out {
+    animation: none;
+  }
+}
