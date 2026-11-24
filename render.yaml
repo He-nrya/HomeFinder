@@ -3,9 +3,8 @@ services:
     name: homefinder-api
     runtime: node
     plan: free
-    rootDir: backend
-    buildCommand: npm ci
-    startCommand: npm start
+    buildCommand: npm ci --prefix backend && npm ci --prefix frontend && npm run build --prefix frontend
+    startCommand: npm start --prefix backend
     healthCheckPath: /api/health
     envVars:
       - { key: NODE_VERSION, value: 20 }
@@ -14,8 +13,6 @@ services:
       - { key: JWT_SECRET, generateValue: true }
       - { key: ADMIN_EMAIL, sync: false }
       - { key: ADMIN_PASSWORD, sync: false }
-      - { key: CLIENT_URL, sync: false }
-      - { key: FRONTEND_URL, sync: false }
       - { key: CLOUDINARY_CLOUD_NAME, sync: false }
       - { key: CLOUDINARY_API_KEY, sync: false }
       - { key: CLOUDINARY_API_SECRET, sync: false }
@@ -23,23 +20,5 @@ services:
       - { key: BREVO_API_KEY, sync: false }
       - { key: EMAIL_FROM_ADDRESS, sync: false }
       - { key: EMAIL_FROM_NAME, value: HomeFinder }
-
-  - type: web
-    name: homefinder-frontend
-    runtime: static
-    rootDir: frontend
-    buildCommand: npm ci && npm run build
-    staticPublishPath: ./dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - { key: NODE_VERSION, value: 20 }
-      - key: VITE_API_URL
-        fromService:
-          type: web
-          name: homefinder-api
-          envVarKey: RENDER_EXTERNAL_URL
       - { key: VITE_GOOGLE_MAPS_KEY, sync: false }
 

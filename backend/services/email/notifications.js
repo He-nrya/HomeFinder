@@ -7,7 +7,7 @@ const { sendEmail } = require('./brevo');
 const t = require('./templates');
 
 const frontendUrl = () => {
-  const url = process.env.FRONTEND_URL || (process.env.CLIENT_URL || '').split(',')[0] || 'http://localhost:5173';
+  const url = process.env.FRONTEND_URL || (process.env.CLIENT_URL || process.env.RENDER_EXTERNAL_URL || '').split(',')[0] || 'http://localhost:5173';
   return url.trim().replace(/\/+$/, '');
 };
 const verifyLink = (token) => `${frontendUrl()}/verify-email?token=${token}`;

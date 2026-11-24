@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -23,15 +24,23 @@ if ((process.env.NODE_ENV === 'production' || process.env.RENDER === 'true') && 
 
 const app = express();
 const server = http.createServer(app);
-const origins = (process.env.CLIENT_URL || 'http://localhost:5173').split(',').map((s) => s.trim());
+const origins = (process.env.CLIENT_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:5173').split(',').map((s) => s.trim());
+const frontendDist = path.resolve(__dirname, '../frontend/dist');
 
 app.set('trust proxy', 1); // Render sits behind a proxy (needed so rate limits see the real visitor IP)
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      scriptSrc: ["'self'", 'https://*.googleapis.com', 'https://*.gstatic.com', 'https://*.google.com'],
+      connectSrc: ["'self'", 'https://*.googleapis.com', 'https://*.gstatic.com', 'https://*.google.com'],
+      imgSrc: ["'self'", 'data:', 'blob:', 'https://images.unsplash.com', 'https://res.cloudinary.com', 'https://*.googleapis.com', 'https://*.gstatic.com', 'https://*.google.com'],
+    },
+  },
+}));
 app.use(cors({ origin: origins, credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 
-app.get('/', (_, res) => res.json({ name: 'HomeFinder API', ok: true }));
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 // Rate limits for the sensitive auth endpoints live inside routes/auth.js (middleware/rateLimiters.js),
 // so ordinary calls such as /auth/me are not counted against them.
@@ -40,6 +49,11 @@ app.use('/api/properties', require('./routes/properties'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/chat', chatRoutes);
 
+app.use(express.static(frontendDist));
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path === '/api' || req.path.startsWith('/api/')) return next();
+  res.sendFile(path.join(frontendDist, 'index.html'), (error) => { if (error) next(error); });
+});
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 app.use((err, req, res, next) => { // eslint-disable-line
   console.error(err);
